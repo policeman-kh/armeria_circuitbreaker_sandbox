@@ -7,14 +7,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import com.linecorp.armeria.client.circuitbreaker.CircuitBreaker;
-import com.linecorp.armeria.client.circuitbreaker.MetricCollectingCircuitBreakerListener;
+import com.linecorp.armeria.client.circuitbreaker.CircuitBreakerListener;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Component
 public class CircuitBreakerRegistry {
-    private final MetricCollectingCircuitBreakerListener listener;
+    private final CircuitBreakerListener listener;
 
     private final LoadingCache<String, CircuitBreaker> methodCaches =
             CacheBuilder.newBuilder()
