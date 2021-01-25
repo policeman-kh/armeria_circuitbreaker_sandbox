@@ -4,25 +4,26 @@ import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import sandbox.armeria_webflux_breaker.breaker.CircuitBreaker;
+import sandbox.armeria_webflux_breaker.breaker.CircuitBreakable;
 
 @Service
 public class TestService {
-    @CircuitBreaker(name = "mono")
+    @CircuitBreakable(name = "mono")
     public Mono<String> mono(String param) {
         return Mono.just(param);
     }
-    @CircuitBreaker(name = "monoFailed")
+
+    @CircuitBreakable(name = "monoFailed")
     public Mono<String> monoFailed(String param) {
         return Mono.error(new IllegalStateException());
     }
 
-    @CircuitBreaker(name = "flux")
+    @CircuitBreakable(name = "flux")
     public Flux<String> flux(String param) {
         return Flux.just(param);
     }
 
-    @CircuitBreaker(name = "fluxFailed")
+    @CircuitBreakable(name = "fluxFailed")
     public Flux<String> fluxFailed(String param) {
         return Flux.error(new IllegalStateException());
     }

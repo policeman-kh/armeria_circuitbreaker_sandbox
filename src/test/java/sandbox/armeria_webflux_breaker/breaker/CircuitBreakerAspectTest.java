@@ -6,25 +6,25 @@ import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 import com.linecorp.armeria.client.circuitbreaker.CircuitBreaker;
-import com.linecorp.armeria.client.circuitbreaker.MetricCollectingCircuitBreakerListener;
+import com.linecorp.armeria.client.circuitbreaker.CircuitBreakerListener;
 
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import sandbox.armeria_webflux_breaker.breaker.test.Logic;
 
 public class CircuitBreakerAspectTest {
-    private final MetricCollectingCircuitBreakerListener circuitBreakerListener =
-            new MetricCollectingCircuitBreakerListener(new SimpleMeterRegistry());
+    private final CircuitBreakerListener circuitBreakerListener =
+            CircuitBreakerListener.metricCollecting(new SimpleMeterRegistry());
 
     @Test
     public void testMonoSuccess() throws Throwable {
-        final CircuitBreakerRegistry circuitBreakerRegistry =
+        final CircuitBreakerRegistry registry =
                 new CircuitBreakerRegistry(circuitBreakerListener);
-        final Logic logic = getLogic(circuitBreakerRegistry);
+        final Logic logic = getLogic(registry);
         for (int i = 0; i < 100; i++) {
             logic.getMono().ignoreElement().block();
         }
 
-        final CircuitBreaker cb = circuitBreakerRegistry.getCircuitBreaker("getMono");
+        final CircuitBreaker cb = registry.getCircuitBreaker("getMono");
         assertThat(cb.canRequest()).isTrue();
     }
 

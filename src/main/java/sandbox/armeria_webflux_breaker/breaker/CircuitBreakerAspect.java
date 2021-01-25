@@ -21,28 +21,29 @@ import reactor.core.publisher.Mono;
 public class CircuitBreakerAspect {
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
-    @Around("@annotation(sandbox.armeria_webflux_breaker.breaker.CircuitBreaker)")
+    @Around("@annotation(sandbox.armeria_webflux_breaker.breaker.CircuitBreakable)")
     public Object circuitBreakerAround(ProceedingJoinPoint joinPoint)
             throws Throwable {
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         final Method method = signature.getMethod();
-        final sandbox.armeria_webflux_breaker.breaker.CircuitBreaker annotation =
-                method.getAnnotation(sandbox.armeria_webflux_breaker.breaker.CircuitBreaker.class);
-        final CircuitBreaker cb = circuitBreakerRegistry.getCircuitBreaker(annotation.name());
+        final CircuitBreakable annotation =
+                method.getAnnotation(CircuitBreakable.class);
+        final CircuitBreaker cb = circuitBreakerRegistry.getCircuitBreaker(annotation.name(),
+                                                                           annotation.group());
         final Class<?> returnType = method.getReturnType();
         if (Mono.class.isAssignableFrom(returnType)) {
             if (!cb.canRequest()) {
                 return Mono.error(new FailFastException(cb));
             }
             final Mono<?> mono = (Mono<?>) joinPoint.proceed();
-            mono.subscribe(new CircuitBreakerObserver<>(cb));
+            mono.subscribe(new CircuitBreakerObserver<>(cb, annotation.group()));
             return mono;
         } else if (Flux.class.isAssignableFrom(returnType)) {
             if (!cb.canRequest()) {
                 return Flux.error(new FailFastException(cb));
             }
             final Flux<?> flux = (Flux<?>) joinPoint.proceed();
-            flux.subscribe(new CircuitBreakerObserver<>(cb));
+            flux.subscribe(new CircuitBreakerObserver<>(cb, annotation.group()));
             return flux;
         } else {
             if (!cb.canRequest()) {
@@ -52,7 +53,7 @@ public class CircuitBreakerAspect {
             try {
                 return joinPoint.proceed();
             } catch (Throwable e) {
-                success = false;
+                success = !annotation.group().getExceptionFilter().shouldDealWith(e);
                 throw e;
             } finally {
                 if (success) {

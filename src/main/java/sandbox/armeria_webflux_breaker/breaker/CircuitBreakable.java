@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface CircuitBreaker {
+public @interface CircuitBreakable {
     String name();
+
+    CircuitBreakerGroup group() default CircuitBreakerGroup.DEFAULT;
 }

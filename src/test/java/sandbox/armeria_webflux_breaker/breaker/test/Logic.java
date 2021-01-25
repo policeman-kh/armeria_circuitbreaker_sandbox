@@ -2,35 +2,35 @@ package sandbox.armeria_webflux_breaker.breaker.test;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import sandbox.armeria_webflux_breaker.breaker.CircuitBreaker;
+import sandbox.armeria_webflux_breaker.breaker.CircuitBreakable;
 
 public class Logic {
-    @CircuitBreaker(name = "getMono")
+    @CircuitBreakable(name = "getMono")
     public Mono<String> getMono() {
         return Mono.just("");
     }
 
-    @CircuitBreaker(name = "getMonoFailed")
+    @CircuitBreakable(name = "getMonoFailed")
     public Mono<String> getMonoFailed() {
         return Mono.error(new IllegalStateException());
     }
 
-    @CircuitBreaker(name = "getFlux")
+    @CircuitBreakable(name = "getFlux")
     public Flux<String> getFlux() {
         return Flux.just("");
     }
 
-    @CircuitBreaker(name = "getFluxFailed")
+    @CircuitBreakable(name = "getFluxFailed")
     public Flux<String> getFluxFailed() {
         return Flux.error(new IllegalStateException());
     }
 
-    @CircuitBreaker(name = "get")
+    @CircuitBreakable(name = "get")
     public String get() {
         return "";
     }
 
-    @CircuitBreaker(name = "getFailed")
+    @CircuitBreakable(name = "getFailed")
     public String getFailed() {
         throw new IllegalStateException();
     }
